@@ -91,7 +91,7 @@ router.post('/', passport.authenticate('jwt', {session: false}) , (req, res) => 
   const { errors, isValid } = validateProfileInput(req.body);
 
   if(!isValid){
-    return res.status(400).send(errors);
+    return res.status(400).json(errors);
   }
 
   const profileFields = {};
@@ -127,7 +127,7 @@ router.post('/', passport.authenticate('jwt', {session: false}) , (req, res) => 
 
         Profile.findOneAndUpdate({user: req.user.id}, {$set: profileFields}, {new: true})
           .then(profile => res.send(profile))
-          .catch(err => res.status(404).send(err));
+          .catch(err => res.status(404).json(err));
 
       }else{
         // Creating info
@@ -146,7 +146,7 @@ router.post('/', passport.authenticate('jwt', {session: false}) , (req, res) => 
 
             newProfile.save()
               .then(profile => res.send(profile))
-              .catch(err => res.statis(404).send(err));
+              .catch(err => res.statis(404).json(err));
           })
 
 

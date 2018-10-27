@@ -39,7 +39,7 @@ router.get('/:id', (req, res) => {
 });
 
 
-// @post /api/post | private | to create a post
+// @post /api/posts | private | to create a post
 router.post('/', passport.authenticate('jwt', {session: false}), (req, res) => {
 
   const { errors, isValid } = validatePostInput(req.body);

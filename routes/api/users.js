@@ -19,7 +19,7 @@ router.post('/register', (req, res) => {
   const {errors, isValid} = validateRegisterInput(req.body);
 
   if(!isValid){
-    return res.status(400).send({errors});
+    return res.status(400).json(errors);
   }
 
 
@@ -27,7 +27,7 @@ router.post('/register', (req, res) => {
     .then(user => {
       if(user){
         errors.email = "Email is already registered";
-        return res.status(400).send(errors);
+        return res.status(400).json(errors);
       }else{
         const avatar = gravatar.url(req.body.email, {
           s: '200', // Size
@@ -49,15 +49,15 @@ router.post('/register', (req, res) => {
             newUser.password = hash;
 
             newUser.save()
-              .then(user => res.send(user))
-              .catch(err => res.status(404).send({"error":"User not registered properly"}));
+              .then(user => res.json(user))
+              .catch(err => res.status(404).json({"error":"User not registered properly"}));
           });
 
         });
 
       }
     })
-    .catch(err => res.status(404).send({"error":err}) );
+    .catch(err => res.status(404).json({"error":err}) );
 
 });
 
@@ -67,7 +67,7 @@ router.post('/login', (req, res) => {
   const {errors, isValid} = validateLoginInput(req.body);
 
   if(!isValid){
-    return res.status(400).send(errors);
+    return res.status(400).json(errors);
   }
 
   const email = req.body.email;
@@ -76,14 +76,14 @@ router.post('/login', (req, res) => {
   User.findOne({email: email}).then(user => {
     if(!user){
       errors.email = "User not found";
-      return res.status(404).send(errors);
+      return res.status(404).json(errors);
     }
 
     bcrypt.compare(password, user.password)
       .then(isMatch => {
         if(!isMatch){
           errors.password = "Password is incorrect";
-          return res.status(400).send(errors);
+          return res.status(400).json(errors);
         }else{
           // User matched
           const payload = {id: user._id, name: user.name, avatar: user.avatar} // JWT payload
@@ -93,7 +93,7 @@ router.post('/login', (req, res) => {
             keys.secretKey,
             {expiresIn: 36000},
             (err, token) => {
-              res.send({
+              res.json({
                 success: true,
                 token: 'Bearer ' + token
               });
@@ -101,6 +101,10 @@ router.post('/login', (req, res) => {
           );
 
         }
+      })
+      .catch(err => {
+        errors.password = "Password is incorrect";
+        return res.status(400).json(errors);
       });
 
   });
